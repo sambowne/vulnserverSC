@@ -29,6 +29,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <stdlib.h>
 #include <stdio.h>
 
+/* ADDED BY SAM 3-21-24 */
+#include <unistd.h>
+#include <dirent.h>
+
 #define VERSION "1.00"
 #define DEFAULT_BUFLEN 4096
 #define DEFAULT_PORT "9999"
@@ -179,8 +183,40 @@ DWORD WINAPI ConnectionHandler(LPVOID CSocket) {
 				const char NotImplemented[47] = "Command specific help has not been implemented\n";
 				SendResult = send( Client, NotImplemented, sizeof(NotImplemented), 0 );
 			} else if (strncmp(RecvBuf, "HELP", 4) == 0) {
-				const char ValidCommands[251] = "Valid Commands:\nHELP\nSTATS [stat_value]\nRTIME [rtime_value]\nLTIME [ltime_value]\nSRUN [srun_value]\nTRUN [trun_value]\nGMON [gmon_value]\nGDOG [gdog_value]\nKSTET [kstet_value]\nGTER [gter_value]\nHTER [hter_value]\nLTER [lter_value]\nKSTAN [lstan_value]\nEXIT\n";
+/* MODIFIED BY SAM 3-21-24 */
+				const char ValidCommands[275] = "Valid Commands:\nHELP\nECHO [string]\nDIR [dir]\nSTATS [stat_value]\nRTIME [rtime_value]\nLTIME [ltime_value]\nSRUN [srun_value]\nTRUN [trun_value]\nGMON [gmon_value]\nGDOG [gdog_value]\nKSTET [kstet_value]\nGTER [gter_value]\nHTER [hter_value]\nLTER [lter_value]\nKSTAN [lstan_value]\nEXIT\n";
 				SendResult = send( Client, ValidCommands, sizeof(ValidCommands), 0 );
+
+				
+/* ADDED BY SAM 3-21-24 */
+
+			} else if (strncmp(RecvBuf, "ECHO ", 5) == 0) {
+				char *StatBuf = malloc(1200);
+				memset(StatBuf, 0, 1200);
+				strncpy(StatBuf, RecvBuf, 1200);
+				sprintf(StatBuf, RecvBuf);
+				strcat(StatBuf, "\n");
+				SendResult = send( Client, StatBuf, strlen(StatBuf), 0 );
+
+			} else if (strncmp(RecvBuf, "DIR ", 4) == 0) {
+				char *StatBuf = malloc(1200);
+				memset(StatBuf, 0, 1200);
+				strncpy(StatBuf, RecvBuf, 1200);
+
+				FILE *fp;
+				char buffer[1024];
+
+  				fp = popen(RecvBuf, "r");
+
+  				while (fgets(buffer, sizeof(buffer), fp) != NULL) {
+  				  strcat(StatBuf, buffer);
+  				}
+				pclose(fp);
+ 
+				strcat(StatBuf, "\n");
+				SendResult = send( Client, StatBuf, strlen(StatBuf), 0 );
+/* END OF CODE ADDED BY SAM 3-21-24 */
+				
 			} else if (strncmp(RecvBuf, "STATS ", 6) == 0) {
 				char *StatBuf = malloc(120);
 				memset(StatBuf, 0, 120);
