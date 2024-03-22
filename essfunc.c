@@ -15,6 +15,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 */
 
 #include <stdio.h>
+#include <string.h>   /* ADDED BY SAM 3-21-24 */
 
 #define VERSION "1.00"
 
